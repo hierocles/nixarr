@@ -33,6 +33,9 @@ with lib; let
     '' + strings.optionalString cfg.jellyfin.enable ''
       chown -R streamer:root "${cfg.jellyfin.stateDir}"
       find "${cfg.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+    '' + strings.optionalString cfg.plex.enable ''
+      chown -R streamer:root "${cfg.plex.stateDir}"
+      find "${cfg.plex.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
     '' + strings.optionalString cfg.transmission.enable ''
       chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
       find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
@@ -65,6 +68,7 @@ with lib; let
 in {
   imports = [
     ./jellyfin
+    ./plex
     ./bazarr
     ./ddns
     ./radarr
@@ -98,11 +102,12 @@ in {
 
         It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
         because it can cause rate limiting issues. Generally, you should use
-        VPN on transmission and maybe jellyfin, depending on your setup.
+        VPN on transmission and maybe jellyfin/plex, depending on your setup.
 
         The following services are supported:
 
         - [Jellyfin](#nixarr.jellyfin.enable)
+        - [Plex](#nixarr.plex.enable)
         - [Bazarr](#nixarr.bazarr.enable)
         - [Lidarr](#nixarr.lidarr.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)
