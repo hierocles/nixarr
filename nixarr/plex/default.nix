@@ -4,7 +4,7 @@
   ...
 }: let
   cfg = config.nixarr.plex;
-  defaultPort = 8096;
+  defaultPort = 32400;
   nixarr = config.nixarr;
 in
   with lib; {
