@@ -259,7 +259,7 @@ in
             };
           })
           (mkIf cfg.expose.vpn.enable {
-            virtualHosts."${builtins.toString cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = {
+            virtualHosts."${builtins.toString cfg.expose.vpn.accessibleFrom}" = {
               enableACME = true;
               forceSSL = true;
               locations."/" = {
