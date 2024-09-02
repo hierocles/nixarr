@@ -84,14 +84,14 @@ in {
       description = ''
         The location of the state directory for the Transmission service.
 
-        **Warning:** Setting this to any path, where the subpath is not
-        owned by root, will fail! For example:
-
-        ```nix
-          stateDir = /home/user/nixarr/.state/transmission
-        ```
-
-        Is not supported, because `/home/user` is owned by `user`.
+        > **Warning:** Setting this to any path, where the subpath is not
+        > owned by root, will fail! For example:
+        > 
+        > ```nix
+        >   stateDir = /home/user/nixarr/.state/transmission
+        > ```
+        > 
+        > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
 
@@ -163,14 +163,14 @@ in {
           description = ''
             The location of the state directory for the cross-seed service.
 
-            **Warning:** Setting this to any path, where the subpath is not
-            owned by root, will fail! For example:
-
-            ```nix
-              stateDir = /home/user/nixarr/.state/cross-seed
-            ```
-
-            Is not supported, because `/home/user` is owned by `user`.
+            > **Warning:** Setting this to any path, where the subpath is not
+            > owned by root, will fail! For example:
+            > 
+            > ```nix
+            >   stateDir = /home/user/nixarr/.state/cross-seed
+            > ```
+            > 
+            > Is not supported, because `/home/user` is owned by `user`.
           '';
         };
 
@@ -290,14 +290,33 @@ in {
       }
     ];
 
+    users = {
+      groups = {
+        torrenter = {};
+        cross-seed = {};
+      };
+      users.torrenter = {
+        isSystemUser = true;
+        group = "torrenter";
+      };
+    };
+
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0750 torrenter cross-seed - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
       "d '${cfg.stateDir}/.config' 0750 torrenter cross-seed - -"
       "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter cross-seed - -"
-     ];
 
-    users.groups.cross-seed = {};
+      # Media Dirs
+      "d '${nixarr.mediaDir}/torrents'             0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/.incomplete' 0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/.watch'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/manual'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/lidarr'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/radarr'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/readarr'     0755 torrenter media - -"
+     ];
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;

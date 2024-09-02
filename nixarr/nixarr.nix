@@ -26,20 +26,20 @@ with lib; let
         exit
       fi
 
-      chown -R torrenter:media "${cfg.mediaDir}/torrents"
-      chown -R usenet:media "${cfg.mediaDir}/usenet"
-      chown -R streamer:media "${cfg.mediaDir}/library"
       find "${cfg.mediaDir}" \( -type d -exec chmod 0775 {} + -true \) -o \( -exec chmod 0664 {} + \)
     '' + strings.optionalString cfg.jellyfin.enable ''
+      chown -R streamer:media "${cfg.mediaDir}/library"
       chown -R streamer:root "${cfg.jellyfin.stateDir}"
       find "${cfg.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
     '' + strings.optionalString cfg.plex.enable ''
       chown -R streamer:root "${cfg.plex.stateDir}"
       find "${cfg.plex.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
     '' + strings.optionalString cfg.transmission.enable ''
+      chown -R torrenter:media "${cfg.mediaDir}/torrents"
       chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
       find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
     '' + strings.optionalString cfg.sabnzbd.enable ''
+      chown -R usenet:media "${cfg.mediaDir}/usenet"
       chown -R usenet:root "${cfg.sabnzbd.stateDir}"
       find "${cfg.sabnzbd.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
     '' + strings.optionalString cfg.transmission.privateTrackers.cross-seed.enable ''
@@ -137,14 +137,14 @@ in {
       description = ''
         The location of the media directory for the services.
 
-        **Warning:** Setting this to any path, where the subpath is not
-        owned by root, will fail! For example:
-
-        ```nix
-          mediaDir = /home/user/nixarr
-        ```
-
-        Is not supported, because `/home/user` is owned by `user`.
+        > **Warning:** Setting this to any path, where the subpath is not
+        > owned by root, will fail! For example:
+        > 
+        > ```nix
+        >   mediaDir = /home/user/nixarr
+        > ```
+        > 
+        > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
 
@@ -155,14 +155,14 @@ in {
       description = ''
         The location of the state directory for the services.
 
-        **Warning:** Setting this to any path, where the subpath is not
-        owned by root, will fail! For example:
-
-        ```nix
-          stateDir = /home/user/nixarr/.state
-        ```
-
-        Is not supported, because `/home/user` is owned by `user`.
+        > **Warning:** Setting this to any path, where the subpath is not
+        > owned by root, will fail! For example:
+        > 
+        > ```nix
+        >   stateDir = /home/user/nixarr/.state
+        > ```
+        > 
+        > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
 
@@ -238,53 +238,10 @@ in {
       }
     ];
 
-    users.groups = {
-      media.members = cfg.mediaUsers;
-      streamer = {};
-      torrenter = {};
-      usenet = {};
-    };
-    users.users = {
-      streamer = {
-        isSystemUser = true;
-        group = "streamer";
-      };
-      torrenter = {
-        isSystemUser = true;
-        group = "torrenter";
-      };
-      usenet = {
-        isSystemUser = true;
-        group = "usenet";
-      };
-    };
+    users.groups.media.members = cfg.mediaUsers;
 
     systemd.tmpfiles.rules = [
-      # Media dirs
-      "d '${cfg.mediaDir}'                      0775 root      media - -"
-      "d '${cfg.mediaDir}/library'              0775 streamer  media - -"
-      "d '${cfg.mediaDir}/library/shows'        0775 streamer  media - -"
-      "d '${cfg.mediaDir}/library/movies'       0775 streamer  media - -"
-      "d '${cfg.mediaDir}/library/music'        0775 streamer  media - -"
-      "d '${cfg.mediaDir}/library/books'        0775 streamer  media - -"
-      "d '${cfg.mediaDir}/torrents'             0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/.incomplete' 0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/.watch'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/manual'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/lidarr'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/radarr'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/readarr'     0755 torrenter media - -"
-    ] ++ lists.optionals cfg.sabnzbd.enable [
-      # only create usenet dirs if sabnzbd is enabled
-      "d '${cfg.mediaDir}/usenet'             0755 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/.incomplete' 0755 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/.watch'      0755 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/manual'      0775 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/liadarr'     0775 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/radarr'      0775 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/sonarr'      0775 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/readarr'     0775 usenet media - -"
+      "d '${cfg.mediaDir}'  0775 root media - -"
     ];
 
     environment.systemPackages = with pkgs; [
@@ -295,7 +252,7 @@ in {
 
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;
-      openVPNPorts = optional cfg.vpn.vpnTestService.enable {
+      openVPNPorts = optional (cfg.vpn.vpnTestService.port != null) {
         port = cfg.vpn.vpnTestService.port;
         protocol = "tcp";
       };

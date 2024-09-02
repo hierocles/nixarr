@@ -4,13 +4,13 @@ title: DDNS Using Njalla
 
 Go to your domain on njalla:
 
-![Njalla Domain](/docs/wiki/ddns/njalla/domain.png)
+![Njalla Domain](domain.png)
 
 Then press "Add record", select "Dynamic" and write your subdomain in the
 input box. It should now be added to your records. Click on the record,
 you should now see something like the following:
 
-![Njalla Record](/docs/wiki/ddns/njalla/record.png)
+![Njalla Record](record.png)
 
 Given this, your JSON file should contain the following:
 
@@ -46,7 +46,7 @@ After rebuilding, you can check the output of the DDNS script:
 
 Where you should see something like:
 
-```
+```default
   Mar 03 21:05:00 pi systemd[1]: Starting Sets the Njalla DDNS records...
   Mar 03 21:05:02 pi ddns-njalla[26842]: {"status": 200, "message": "record updated", "value": {"A": "93.184.216.34"}}
   Mar 03 21:05:02 pi ddns-njalla[26845]: {"status": 200, "message": "record updated", "value": {"A": "93.184.216.34"}}
