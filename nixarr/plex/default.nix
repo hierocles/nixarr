@@ -20,6 +20,8 @@ in
         '';
       };
 
+      package = mkPackageOption pkgs "plex" { };
+
       stateDir = mkOption {
         type = types.path;
         default = "${nixarr.stateDir}/plex";
@@ -202,6 +204,10 @@ in
 
         systemd.tmpfiles.rules = [
           "d '${cfg.stateDir}' 0700 streamer root - -"
+          # Media Dirs
+          "d '${nixarr.mediaDir}/library'              0775 streamer  media - -"
+          "d '${nixarr.mediaDir}/library/shows'        0775 streamer  media - -"
+          "d '${nixarr.mediaDir}/library/movies'       0775 streamer  media - -"
         ];
 
         # Always prioritise Plex IO
@@ -209,6 +215,7 @@ in
 
         services.plex = {
           enable = cfg.enable;
+          package = cfg.package;
           user = "streamer";
           group = "media";
           openFirewall = cfg.openFirewall;
@@ -277,14 +284,14 @@ in
         };
 
         # Enable and specify VPN namespace to confine service in.
-        systemd.services.plex.vpnconfinement = mkIf cfg.vpn.enable {
+        systemd.services.plex.vpnConfinement = mkIf cfg.vpn.enable {
           enable = true;
-          vpnnamespace = "wg";
+          vpnNamespace = "wg";
         };
 
         # Port mappings
         # TODO: openports if expose.vpn
-        vpnnamespaces.wg = mkIf cfg.vpn.enable {
+        vpnNamespaces.wg = mkIf cfg.vpn.enable {
           portMappings = [
             {
               from = defaultPort;
