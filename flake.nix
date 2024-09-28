@@ -1,5 +1,5 @@
 {
-  description = "The Nixarr Nixos Module for Hosting the \"*Arrs\"";
+  description = "The Nixarr Media Server Nixos Module";
 
   nixConfig = {
     extra-substituters = ["https://nix-community.cachix.org"];
@@ -8,32 +8,32 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    vpnconfinement = {
-      url = "github:Maroka-chan/VPN-Confinement";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-      inputs.nixpkgs-lib.follows = "nixpkgs";
-    };
+    vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
+    vpnconfinement.inputs.nixpkgs.follows = "nixpkgs";
+
+    submerger.url = "github:rasmus-kirk/submerger";
+    submerger.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Flake stuff
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
+
     flake-root.url = "github:srid/flake-root";
 
-    devshell = {
-      url = "github:numtide/devshell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    devshell.url = "github:numtide/devshell";
+    devshell.inputs.nixpkgs.follows = "nixpkgs";
+
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs @ {
+  outputs = {
     flake-parts,
     vpnconfinement,
+    submerger,
     ...
-  }:
+  } @ inputs:
     flake-parts.lib.mkFlake {
       inherit inputs;
     } {
@@ -48,7 +48,7 @@
 
       flake = {
         nixosModules = rec {
-          nixarr = import ./nixarr vpnconfinement;
+          nixarr = import ./nixarr submerger vpnconfinement;
           imports = [ vpnconfinement.nixosModules.default ];
           default = nixarr;
         };

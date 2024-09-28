@@ -76,6 +76,8 @@ in {
       '';
     };
 
+    package = mkPackageOption pkgs "transmission_4" { };
+
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/transmission";
@@ -366,7 +368,7 @@ in {
         if cfg.flood.enable
         then pkgs.flood-for-transmission
         else null;
-      package = pkgs.transmission_4;
+      package = cfg.package;
       openRPCPort = cfg.openFirewall;
       openPeerPorts = cfg.openFirewall;
       credentialsFile = cfg.credentialsFile;
@@ -429,13 +431,13 @@ in {
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.transmission.vpnconfinement = mkIf cfg.vpn.enable {
+    systemd.services.transmission.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
-      vpnnamespace = "wg";
+      vpnNamespace = "wg";
     };
 
     # Port mappings
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
           from = cfg.uiPort;

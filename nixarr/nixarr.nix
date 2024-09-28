@@ -250,7 +250,7 @@ in {
       fix-permissions
     ];
 
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;
       openVPNPorts = optional (cfg.vpn.vpnTestService.port != null) {
         port = cfg.vpn.vpnTestService.port;
@@ -264,13 +264,12 @@ in {
       wireguardConfigFile = cfg.vpn.wgConf;
     };
 
-    # TODO: openports
     systemd.services.vpn-test-service = mkIf cfg.vpn.vpnTestService.enable {
       enable = true;
 
-      vpnconfinement = {
+      vpnConfinement = {
         enable = true;
-        vpnnamespace = "wg";
+        vpnNamespace = "wg";
       };
 
       script = let
