@@ -203,6 +203,14 @@ in
           }
         ];
 
+        users = {
+          groups.streamer = {};
+          users.streamer = {
+            isSystemUser = true;
+            group = "streamer";
+          };
+        };
+        
         systemd.tmpfiles.rules = [
           "d '${cfg.stateDir}' 0700 streamer root - -"
           # Media Dirs
